@@ -33,5 +33,13 @@ public class GlobalExceptionHandler {
 
     }
 
+    @ExceptionHandler(SecurityException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleSecurityException(SecurityException ex) {
+
+        return new ErrorResponse(ex.getMessage());
+
+    }
 
 }

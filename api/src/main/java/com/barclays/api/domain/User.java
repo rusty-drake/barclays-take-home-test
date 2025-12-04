@@ -67,22 +67,6 @@ public class User {
         this.email = email;
     }
 
-    // // ---- lifecycle callbacks ----
-
-    // @PrePersist
-    // protected void onCreate() {
-    //     OffsetDateTime now = OffsetDateTime.now();
-    //     if (this.createdTimestamp == null) {
-    //         this.createdTimestamp = now;       // set once
-    //     }
-    //     this.updatedTimestamp = now;           // also set on create
-    // }
-
-    // @PreUpdate
-    // protected void onUpdate() {
-    //     this.updatedTimestamp = OffsetDateTime.now(); // update on each change
-    // }
-
     public Long getId() {
         return id;
     }

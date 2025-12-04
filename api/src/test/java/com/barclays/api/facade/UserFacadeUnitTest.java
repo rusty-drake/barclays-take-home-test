@@ -41,9 +41,10 @@ public class UserFacadeUnitTest {
     public void createWithNullUserThrowsAnException() {
         // test fixtures
         final User user = null;
+        final String principalEmail = "test@example.com";
 
         // when/then
-        assertThatThrownBy(() -> sut.create(user))
+        assertThatThrownBy(() -> sut.create(user, principalEmail))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -79,7 +80,7 @@ public class UserFacadeUnitTest {
 
         // when
         try {
-            sut.create(newUser);
+            sut.create(newUser, "test@example.com");
             
             // Should not reach here
             assertThat(false).as("create() should have thrown an exception").isTrue();
@@ -130,7 +131,7 @@ public class UserFacadeUnitTest {
                 .willReturn(savedUser);
 
         // when
-        final User result = sut.create(newUser);
+        final User result = sut.create(newUser, "test@example.com");
 
         // then
         assertThat(result).isNotNull();
@@ -146,5 +147,43 @@ public class UserFacadeUnitTest {
                 .saveUser(same(newUser));
 
         verifyNoMoreInteractions(userService);
+    }
+
+    @Test
+    public void createUserWillThrowSecurityExceptionIfPrincipalEmailDoesNotMatchUserEmail() {
+        // test fixtures
+        final Address address = Address.Builder.create()
+                .withLine1("123 Test Street")
+                .withTown("Test Town")
+                .withCounty("Test County")
+                .withPostcode("TE1 2ST")
+                .build();
+
+        final User newUser = User.Builder.create()
+                .withName("Test User")
+                .withEmail("user@example.com")
+                .withPhoneNumber("+441234567890")
+                .withAddress(address)
+                .build();
+
+        final String principalEmail = "different@example.com";
+
+        // when
+        try {
+            sut.create(newUser, principalEmail);
+            
+            // Should not reach here
+            assertThat(false).as("create() should have thrown an exception").isTrue();
+        } catch (Exception ex) {
+            // then
+            assertThat(ex).isInstanceOf(SecurityException.class);
+
+            final SecurityException securityException = (SecurityException) ex;
+            assertThat(securityException.getMessage())
+                    .contains("Authenticated user does not match the user being created.");
+
+            // Should not call any service methods when security validation fails
+            verifyNoMoreInteractions(userService);
+        }
     }
 }

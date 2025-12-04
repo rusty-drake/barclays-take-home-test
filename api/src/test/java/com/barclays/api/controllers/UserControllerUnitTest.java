@@ -2,6 +2,7 @@ package com.barclays.api.controllers;
 
 import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -56,7 +57,7 @@ public class UserControllerUnitTest {
         createdUser.setId(1L);
 
         // given
-        given(userFacade.create(any(User.class)))
+        given(userFacade.create(any(User.class), anyString()))
                 .willReturn(createdUser);
 
         // when & then

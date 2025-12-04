@@ -19,13 +19,14 @@
     <packaging>pom</packaging>
 
     <name>barclays-takehome-parent</name>
-    <description>Barclays take home test - multi-module project</description>
+    <description>Barclays take home test</description>
 
     <properties>
         <java.version>11</java.version>
         <commons.lang3.version>3.1</commons.lang3.version>
         <h2.version>2.2.224</h2.version>
         <javax.persistence.version>2.2</javax.persistence.version>
+        <io.jsonwebtoken.version>0.11.5</io.jsonwebtoken.version>
     </properties>
 
     <dependencyManagement>
@@ -46,15 +47,30 @@
                 <version>${javax.persistence.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-api</artifactId>
+                <version>${io.jsonwebtoken.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-impl</artifactId>
+                <version>${io.jsonwebtoken.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-jackson</artifactId>
+                <version>${io.jsonwebtoken.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
     <!-- List of modules (subprojects) -->
     <modules>
         <module>api</module>
-        <!-- add more modules here later, e.g.: -->
-        <!-- <module>service</module> -->
-        <!-- <module>domain</module> -->
+        <module>auth-service</module>
     </modules>
 
     <!-- (Optional) shared plugin config & dependencyManagement can go here -->
