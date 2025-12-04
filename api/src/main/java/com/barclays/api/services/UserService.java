@@ -16,10 +16,16 @@ public class UserService {
     }
 
     public User findByEmail(@NotNull String email) {
+        if (email == null) {
+            throw new IllegalArgumentException("Email cannot be null");
+        }
         return userCrudRepository.findByEmail(email);
     }
 
     public User saveUser(@NotNull User user) {
+        if (user == null) {
+            throw new IllegalArgumentException("User cannot be null");
+        }
         return userCrudRepository.save(user);
     }
 }

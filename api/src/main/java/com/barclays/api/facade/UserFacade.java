@@ -21,6 +21,10 @@ public class UserFacade {
 
     public User create(@NotNull User user) {
 
+        if (user == null) {
+            throw new IllegalArgumentException("User cannot be null");
+        }
+
         User existingUser = userService.findByEmail(user.getEmail());
         if (existingUser != null) {
             throw new DuplicateResourceException("User with email " + user.getEmail() + " already exists.");
