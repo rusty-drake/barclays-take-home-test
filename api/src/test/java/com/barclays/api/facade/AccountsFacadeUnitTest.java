@@ -23,9 +23,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.barclays.api.domain.Account;
 import com.barclays.api.domain.Address;
+import com.barclays.api.domain.Transaction;
 import com.barclays.api.domain.User;
 import com.barclays.api.domain.enums.AccountType;
 import com.barclays.api.domain.enums.Currency;
+import com.barclays.api.domain.enums.TransactionType;
 import com.barclays.api.services.AccountService;
 import com.barclays.api.services.IdService;
 import com.barclays.api.services.TransactionService;
@@ -324,5 +326,223 @@ public class AccountsFacadeUnitTest {
             verify(accountService, times(1)).getById(eq(accountId));
             verifyNoMoreInteractions(accountService, userService);
         }
+    }
+
+    @Test
+    public void createTransactionSuccessfullyCreatesTransaction() {
+        // test fixtures
+        final Long accountId = 1L;
+        final String principalEmail = "test@example.com";
+        final String generatedTransactionId = "tan-xyz123";
+
+        final Address address = Address.Builder.create()
+                .withLine1("123 Test Street")
+                .withTown("Test Town")
+                .withCounty("Test County")
+                .withPostcode("TE1 2ST")
+                .build();
+
+        final User user = User.Builder.create()
+                .withName("Test User")
+                .withEmail(principalEmail)
+                .withPhoneNumber("+441234567890")
+                .withAddress(address)
+                .build();
+        user.setId(1L);
+
+        final Account account = Account.Builder.create()
+                .withName("Test Account")
+                .withAccountType(AccountType.PERSONAL)
+                .withBalance(new BigDecimal("1000.00"))
+                .withCurrency(Currency.GBP)
+                .withUser(user)
+                .build();
+        account.setId(accountId);
+
+        final Transaction transaction = Transaction.Builder.create()
+                .withTransactionId("tan-test")
+                .withAmount(new BigDecimal("100.00"))
+                .withType(TransactionType.DEPOSIT)
+                .withCurrency(Currency.GBP)
+                .build();
+
+        // given
+        given(userService.findByEmail(eq(principalEmail))).willReturn(user);
+        given(accountService.getById(eq(accountId))).willReturn(account);
+        given(idService.generateId(eq("tan"))).willReturn(generatedTransactionId);
+        given(transactionService.createTransaction(any(Transaction.class))).willReturn(transaction);
+
+        // when
+        sut.createTransaction(accountId, transaction, principalEmail);
+
+        // then
+        assertThat(transaction.getUser()).isEqualTo(user);
+        assertThat(transaction.getAccount()).isEqualTo(account);
+        assertThat(transaction.getId()).isEqualTo(generatedTransactionId);
+
+        verify(userService, times(1)).findByEmail(principalEmail);
+        verify(accountService, times(1)).getById(accountId);
+        verify(idService, times(1)).generateId("tan");
+        verify(transactionService, times(1)).createTransaction(transaction);
+        verify(accountService, times(1)).updateBalance(account);
+        verifyNoMoreInteractions(userService, accountService, transactionService, idService);
+    }
+
+    @Test
+    public void createTransactionThrowsExceptionWhenUserEmailDoesNotMatch() {
+        // test fixtures
+        final Long accountId = 1L;
+        final String principalEmail = "test@example.com";
+        final String differentEmail = "different@example.com";
+
+        final User user = User.Builder.create()
+                .withName("Test User")
+                .withEmail(differentEmail) // Different email
+                .build();
+
+        final Transaction transaction = Transaction.Builder.create()
+                .withTransactionId("tan-test")
+                .withAmount(new BigDecimal("100.00"))
+                .withType(TransactionType.DEPOSIT)
+                .withCurrency(Currency.GBP)
+                .build();
+
+        // given
+        given(userService.findByEmail(eq(principalEmail))).willReturn(user);
+
+        // when & then
+        assertThatThrownBy(() -> sut.createTransaction(accountId, transaction, principalEmail))
+                .isInstanceOf(SecurityException.class)
+                .hasMessage("Authenticated user does not have access to this account.");
+
+        verify(userService, times(1)).findByEmail(principalEmail);
+        verifyNoMoreInteractions(userService, accountService, transactionService, idService);
+    }
+
+    @Test
+    public void createTransactionThrowsExceptionWhenUserEmailIsNull() {
+        // test fixtures
+        final Long accountId = 1L;
+        final String principalEmail = "test@example.com";
+
+        final User user = User.Builder.create()
+                .withName("Test User")
+                .withEmail(null) // Null email
+                .build();
+
+        final Transaction transaction = Transaction.Builder.create()
+                .withTransactionId("tan-test")
+                .withAmount(new BigDecimal("100.00"))
+                .withType(TransactionType.DEPOSIT)
+                .withCurrency(Currency.GBP)
+                .build();
+
+        // given
+        given(userService.findByEmail(eq(principalEmail))).willReturn(user);
+
+        // when & then
+        assertThatThrownBy(() -> sut.createTransaction(accountId, transaction, principalEmail))
+                .isInstanceOf(SecurityException.class)
+                .hasMessage("Authenticated user does not have access to this account.");
+
+        verify(userService, times(1)).findByEmail(principalEmail);
+        verifyNoMoreInteractions(userService, accountService, transactionService, idService);
+    }
+
+    @Test
+    public void getTransactionsReturnsTransactionsWhenUserHasAccess() {
+        // test fixtures
+        final Long accountId = 1L;
+        final String principalEmail = "test@example.com";
+
+        final Address address = Address.Builder.create()
+                .withLine1("123 Test Street")
+                .withTown("Test Town")
+                .withCounty("Test County")
+                .withPostcode("TE1 2ST")
+                .build();
+
+        final User user = User.Builder.create()
+                .withName("Test User")
+                .withEmail(principalEmail)
+                .withPhoneNumber("+441234567890")
+                .withAddress(address)
+                .build();
+        user.setId(1L);
+
+        final Account account = Account.Builder.create()
+                .withName("Test Account")
+                .withAccountType(AccountType.PERSONAL)
+                .withBalance(new BigDecimal("1000.00"))
+                .withCurrency(Currency.GBP)
+                .withUser(user)
+                .build();
+        account.setId(accountId);
+
+        final List<Transaction> expectedTransactions = Arrays.asList(
+                Transaction.Builder.create()
+                        .withTransactionId("tan-1")
+                        .withAmount(new BigDecimal("100.00"))
+                        .withType(TransactionType.DEPOSIT)
+                        .withCurrency(Currency.GBP)
+                        .withAccount(account)
+                        .build(),
+                Transaction.Builder.create()
+                        .withTransactionId("tan-2")
+                        .withAmount(new BigDecimal("50.00"))
+                        .withType(TransactionType.WITHDRAWAL)
+                        .withCurrency(Currency.GBP)
+                        .withAccount(account)
+                        .build()
+        );
+
+        // given
+        given(accountService.getById(eq(accountId))).willReturn(account);
+        given(transactionService.getTransactionsByAccountId(eq(accountId))).willReturn(expectedTransactions);
+
+        // when
+        List<Transaction> result = sut.getTransactions(accountId, principalEmail);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result).hasSize(2);
+        assertThat(result).isEqualTo(expectedTransactions);
+
+        verify(accountService, times(1)).getById(accountId);
+        verify(transactionService, times(1)).getTransactionsByAccountId(accountId);
+        verifyNoMoreInteractions(accountService, transactionService, userService, idService);
+    }
+
+    @Test
+    public void getTransactionsThrowsExceptionWhenUserDoesNotHaveAccess() {
+        // test fixtures
+        final Long accountId = 1L;
+        final String principalEmail = "test@example.com";
+        final String differentEmail = "different@example.com";
+
+        final User differentUser = User.Builder.create()
+                .withName("Different User")
+                .withEmail(differentEmail)
+                .build();
+
+        final Account account = Account.Builder.create()
+                .withName("Test Account")
+                .withAccountType(AccountType.PERSONAL)
+                .withBalance(new BigDecimal("1000.00"))
+                .withCurrency(Currency.GBP)
+                .withUser(differentUser) // Different user
+                .build();
+        account.setId(accountId);
+
+        // given
+        given(accountService.getById(eq(accountId))).willReturn(account);
+
+        // when & then
+        assertThatThrownBy(() -> sut.getTransactions(accountId, principalEmail))
+                .isInstanceOf(SecurityException.class)
+                .hasMessage("Authenticated user does not have access to this account.");
+
+        verify(accountService, times(1)).getById(accountId);
+        verifyNoMoreInteractions(accountService, transactionService, userService, idService);
     }
 }
