@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.barclays.api.domain.error.ErrorResponse;
 import com.barclays.api.exceptions.DuplicateResourceException;
+import com.barclays.api.exceptions.ResourceNotFoundException;
 
 // All controllers under com.barclays.api...
 @ControllerAdvice
@@ -40,6 +41,26 @@ public class GlobalExceptionHandler {
 
         return new ErrorResponse(ex.getMessage());
 
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleResourceNotFound(ResourceNotFoundException ex) {
+
+        return new ErrorResponse(ex.getMessage());
+
+    }
+
+    @ExceptionHandler(Exception.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleGenericException(Exception ex) {
+
+        if (ex == null || ex.getMessage() == null) {
+            return new ErrorResponse("An unexpected error occurred");
+        }
+        return new ErrorResponse(ex.getMessage());
     }
 
 }
