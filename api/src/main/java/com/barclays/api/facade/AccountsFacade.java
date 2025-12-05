@@ -87,4 +87,13 @@ public class AccountsFacade {
 
         accountService.updateBalance(account);
     }
+
+    public List<Transaction> getTransactions(@NotNull Long accountId, @NotBlank String principalEmail) {
+        Account account = accountService.getById(accountId);
+        if (!account.getUser().getEmail().equals(principalEmail)) {
+            throw new SecurityException("Authenticated user does not have access to this account.");
+        }
+
+        return transactionService.getTransactionsByAccountId(accountId);
+    }
 }

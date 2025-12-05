@@ -66,4 +66,11 @@ public class AccountsController {
         accountFacade.createTransaction(accountId, transaction, principalEmail);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
+
+    @GetMapping("/{accountId}/transactions")
+    public ResponseEntity<List<Transaction>> getTransactions(@PathVariable Long accountId, Authentication authentication) {
+        String principalEmail = authentication.getName();
+        List<Transaction> transactions = accountFacade.getTransactions(accountId, principalEmail);
+        return ResponseEntity.status(HttpStatus.OK).body(transactions);
+    }
 }
