@@ -53,4 +53,8 @@ public class AccountService {
         }
         return account;
     }
+
+    public void updateBalance(@NotNull Account account) {
+        accountDao.updateBalance(account.getId(), account.getBalance());
+    }
 }

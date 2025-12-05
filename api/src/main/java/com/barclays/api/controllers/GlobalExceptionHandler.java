@@ -46,9 +46,14 @@ public class GlobalExceptionHandler {
     @ResponseBody
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleResourceNotFound(ResourceNotFoundException ex) {
-
         return new ErrorResponse(ex.getMessage());
+    }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public ErrorResponse handleIllegalArgumentException(IllegalArgumentException ex) {
+        return new ErrorResponse(ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)

@@ -45,7 +45,7 @@ public class UserController {
 
         String principalEmail = authentication.getName();
 
-        User user = userFacade.getUser(null, principalEmail);
+        User user = userFacade.getUser(userId, principalEmail);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(user);

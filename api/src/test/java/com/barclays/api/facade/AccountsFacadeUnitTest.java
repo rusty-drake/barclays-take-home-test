@@ -27,6 +27,8 @@ import com.barclays.api.domain.User;
 import com.barclays.api.domain.enums.AccountType;
 import com.barclays.api.domain.enums.Currency;
 import com.barclays.api.services.AccountService;
+import com.barclays.api.services.IdService;
+import com.barclays.api.services.TransactionService;
 import com.barclays.api.services.UserService;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,9 +42,15 @@ public class AccountsFacadeUnitTest {
     @Mock
     private UserService userService;
 
+    @Mock
+    private TransactionService transactionService;
+
+    @Mock
+    private IdService idService;
+
     @BeforeEach
     public void setup() {
-        sut = new AccountsFacade(accountService, userService);
+        sut = new AccountsFacade(accountService, userService, transactionService, idService);
     }
 
     @Test

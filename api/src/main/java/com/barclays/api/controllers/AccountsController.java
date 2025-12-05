@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.barclays.api.domain.Account;
+import com.barclays.api.domain.Transaction;
 import com.barclays.api.facade.AccountsFacade;
 
 @RestController
@@ -53,12 +54,16 @@ public class AccountsController {
     public ResponseEntity<Account> getAccount(@PathVariable Long accountId, Authentication authentication) {
 
         String principalEmail = authentication.getName();
-        List<Account> accounts = accountFacade.getAccounts(principalEmail);
-        for (Account account : accounts) {
-            if (account.getId().equals(accountId)) {
-                return ResponseEntity.status(HttpStatus.OK).body(account);
-            }
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        Account account = accountFacade.getAccount(accountId, principalEmail);
+        return ResponseEntity.status(HttpStatus.OK).body(account);
+    }
+
+    @PostMapping("/{accountId}/transactions")
+    public ResponseEntity<Void> createTransaction(@PathVariable Long accountId, @Valid @RequestBody Transaction transaction, 
+        Authentication authentication) {
+
+        String principalEmail = authentication.getName();
+        accountFacade.createTransaction(accountId, transaction, principalEmail);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

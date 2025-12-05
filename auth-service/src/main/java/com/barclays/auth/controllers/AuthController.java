@@ -1,17 +1,19 @@
 package com.barclays.auth.controllers;
 
-import com.barclays.auth.services.JwtService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
 import java.util.Map;
 
-import com.barclays.auth.domain.TokenRequest;;
+import javax.validation.Valid;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.barclays.auth.domain.TokenRequest;
 import com.barclays.auth.domain.TokenResponse;
+import com.barclays.auth.services.JwtService;
 
 @RestController
 @RequestMapping("/auth")
