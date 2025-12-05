@@ -21,10 +21,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-            .csrf()
-                .disable()
+            // H2 console works best with CSRF disabled and frames allowed
+            .csrf().disable()
+            .headers().frameOptions().sameOrigin() // or .disable() if you prefer
+            .and()
             .authorizeRequests()
-                .antMatchers("/").permitAll()
+                .antMatchers("/", "/h2-console/**").permitAll()  // <-- allow H2 console
                 .anyRequest().authenticated()
             .and()
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

@@ -16,7 +16,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.barclays.api.dao.UserCrudRepository;
+import com.barclays.api.dao.UserDao;
 import com.barclays.api.domain.Address;
 import com.barclays.api.domain.User;
 
@@ -26,7 +26,7 @@ public class UserServiceUnitTest {
     private UserService sut;
 
     @Mock
-    private UserCrudRepository userCrudRepository;
+    private UserDao userCrudRepository;
 
     @BeforeEach
     public void setup() {

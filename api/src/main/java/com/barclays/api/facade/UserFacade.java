@@ -8,7 +8,6 @@ import org.springframework.validation.annotation.Validated;
 
 import com.barclays.api.domain.User;
 import com.barclays.api.exceptions.DuplicateResourceException;
-import com.barclays.api.exceptions.ResourceNotFoundException;
 import com.barclays.api.services.UserService;
 
 @Service
@@ -39,9 +38,6 @@ public class UserFacade {
     public User getUser(@NotNull Long userId, @NotNull String principalEmail) {
 
         User user = userService.getById(userId);
-        if (user == null) {
-            throw new ResourceNotFoundException("User with ID " + userId + " not found.");
-        }
 
         if (!user.getEmail().equals(principalEmail)) {
             throw new SecurityException("Authenticated user does not have access to this user.");

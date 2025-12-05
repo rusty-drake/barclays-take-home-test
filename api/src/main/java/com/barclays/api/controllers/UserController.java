@@ -23,7 +23,9 @@ public class UserController {
     private final UserFacade userFacade;
 
     @Autowired
-    public UserController(UserFacade userFacade) {
+    public UserController(
+        UserFacade userFacade
+    ) {
         this.userFacade = userFacade;
     }
 

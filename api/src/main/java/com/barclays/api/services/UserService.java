@@ -4,7 +4,7 @@ import javax.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import com.barclays.api.dao.UserCrudRepository;
+import com.barclays.api.dao.UserDao;
 import com.barclays.api.domain.User;
 import com.barclays.api.exceptions.ResourceNotFoundException;
 
@@ -12,23 +12,23 @@ import com.barclays.api.exceptions.ResourceNotFoundException;
 @Validated
 public class UserService {
 
-    private final UserCrudRepository userCrudRepository;
+    private final UserDao userDao;
 
-    public UserService(UserCrudRepository userCrudRepository) {
-        this.userCrudRepository = userCrudRepository;
+    public UserService(UserDao userDao) {
+        this.userDao = userDao;
     }
 
     public User findByEmail(@NotNull String email) {
-        return userCrudRepository.findByEmail(email);
+        return userDao.findByEmail(email);
     }
 
     public User saveUser(@NotNull User user) {
-        return userCrudRepository.save(user);
+        return userDao.save(user);
     }
 
     public User getById(@NotNull Long userId) {
 
-        User user = userCrudRepository.findById(userId).orElse(null);
+        User user = userDao.findById(userId).orElse(null);
         if (user == null) {
             throw new ResourceNotFoundException("User with ID " + userId + " not found.");
         }

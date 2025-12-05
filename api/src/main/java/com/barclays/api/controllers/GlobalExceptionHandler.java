@@ -22,7 +22,6 @@ public class GlobalExceptionHandler {
 
         // ideally should return more information about which fields failed
         return new ErrorResponse("The request didn't supply all the necessary data");
-
     }
 
     @ExceptionHandler(DuplicateResourceException.class)
